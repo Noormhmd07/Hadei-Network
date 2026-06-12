@@ -42,6 +42,12 @@ export default function LoginPage() {
     // Dummy Freelancer Login
     if (form.email === DUMMY_FREELANCER.email && form.password === DUMMY_FREELANCER.password) {
       navigate('/dashboard/freelancer');
+    // ==========================
+    if (
+      form.email === DUMMY_FREELANCER.email &&
+      form.password === DUMMY_FREELANCER.password
+    ) {
+      navigate('/onboarding/freelancer');
       return;
     }
 
