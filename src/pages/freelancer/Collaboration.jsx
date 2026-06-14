@@ -6,12 +6,18 @@ import {
   Users,
   Briefcase,
   AlertCircle,
-  UserCheck
+  UserCheck,
+  X
 } from 'lucide-react'
 
 export default function Collaboration() {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
+
+  // Modal States
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
+  const [selectedJob, setSelectedJob] = useState(null)
+  const [proposalText, setProposalText] = useState('')
 
   // -----------------------------
   // MOCK DATA: COLLABORATION JOBS
@@ -87,8 +93,27 @@ export default function Collaboration() {
     job.description.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const openApplyModal = (job) => {
+    setSelectedJob(job)
+    setProposalText('')
+    setIsApplyModalOpen(true)
+  }
+
+  const closeApplyModal = () => {
+    setIsApplyModalOpen(false)
+    setSelectedJob(null)
+    setProposalText('')
+  }
+
+  const handleApplySubmit = () => {
+    if (!proposalText.trim()) return
+    console.log(`Applied for job ${selectedJob.id} with proposal:`, proposalText)
+    alert(`Successfully applied to ${selectedJob.title}!`)
+    closeApplyModal()
+  }
+
   return (
-    <div className="w-full h-full p-4 md:p-6 lg:p-10 bg-white text-black font-sans overflow-y-auto custom-scrollbar">
+    <div className="w-full h-full p-4 md:p-6 lg:p-10 bg-white text-black font-sans overflow-y-auto custom-scrollbar relative">
       
       <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-8">
         
@@ -202,7 +227,7 @@ export default function Collaboration() {
                       View Details
                     </button>
                     <button 
-                      onClick={() => console.log('Apply clicked for', job.id)}
+                      onClick={() => openApplyModal(job)}
                       disabled={isUnavailable}
                       className={`flex-1 py-3 rounded-sm text-sm font-bold transition-colors text-center ${
                         isUnavailable 
@@ -232,6 +257,65 @@ export default function Collaboration() {
         )}
 
       </div>
+
+      {/* ==================== APPLY MODAL ==================== */}
+      {isApplyModalOpen && selectedJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-sm border border-gray-200 flex flex-col shadow-xl">
+            
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="font-bold text-black text-lg">Submit Proposal</h3>
+              <button 
+                onClick={closeApplyModal} 
+                className="text-gray-400 hover:text-black transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                Applying to <span className="font-bold text-black">{selectedJob.title}</span> by <span className="font-bold text-black">{selectedJob.posterName}</span>.
+              </p>
+              
+              <label htmlFor="proposalText" className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">
+                Short Proposal <span className="text-red-500">*</span>
+              </label>
+              <textarea 
+                id="proposalText"
+                rows={5}
+                placeholder="Briefly explain why you are a good fit for this job..."
+                value={proposalText}
+                onChange={(e) => setProposalText(e.target.value)}
+                className="w-full bg-white border border-gray-300 rounded-sm px-4 py-3.5 text-sm text-black transition-colors focus:border-black focus:outline-none resize-y"
+              />
+              <p className="text-[10px] text-gray-500 mt-2 font-medium">A short proposal is mandatory to apply for this collaboration.</p>
+            </div>
+
+            <div className="px-5 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+              <button 
+                onClick={closeApplyModal}
+                className="px-4 py-2 text-xs font-bold text-gray-600 hover:text-black transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleApplySubmit}
+                disabled={!proposalText.trim()}
+                className={`px-6 py-2.5 text-xs font-bold rounded-sm transition-colors flex items-center gap-2 ${
+                  !proposalText.trim() 
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                    : 'bg-black text-[#F5F216] hover:bg-gray-800'
+                }`}
+              >
+                Submit Application
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
